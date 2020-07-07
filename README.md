@@ -8,6 +8,47 @@
 
 The firmware that runs on the Raspberry Pis for https://github.com/dwyl/smart-home-security-system
 
+## Setup
+
+### 1. Connect your Raspberry Pi to the PN532 development board.
+We're using UART to connect to the board, so connect the pins up as follows:
+
+[GPIO Diagram](https://pinout.xyz/pinout/uart)
+
+| Pi           | PN532 |
+|--------------|-------|
+5v             | 5v
+Ground         | Ground 
+TXD (GPIO 14)  | RX
+RXD (GPIO 15)  | TX
+
+### 2. Clone this repository
+
+```
+git clone https://github.com/dwyl/smart-home-firmware
+```
+
+### 3. Build the firmware and burn it to an SD card
+
+#### 3.1 set environment variables
+```
+export MIX_TARGET=<tag> # see dwyl/learn-nerves
+export NERVES_NETWORK_SSID=<Wifi network name> #  Optional, if you want WiFi connection
+export NERVES_NETWORK_PSK=<Wifi password> # again, optional
+```
+
+#### 3.2 Build & burn firmware
+Insert and SD card to your host
+```
+mix firmware.burn
+```
+
+#### 4. Deploy
+Insert SD card into Raspberry pi, turn it on then SSH in
+```
+ssh nerves.local
+```
+
 ## Targets
 
 Nerves applications produce images for hardware targets based on the

@@ -14,6 +14,10 @@ defmodule SmartHomeFirmware.Application do
         # Children for all targets
         # Starts a worker by calling: SmartHomeFirmware.Worker.start_link(arg)
         # {SmartHomeFirmware.Worker, arg},
+        #
+        # Don't add stuff here that needs a Network connection!
+        # Add it in `NetworkSupervisor`
+        SmartHomeFirmware.NetworkSupervisor,
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)

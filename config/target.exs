@@ -4,6 +4,11 @@ import Config
 # docs for separating out critical OTP applications such as those
 # involved with firmware updates.
 
+config :logger, level: :info
+
+config :smart_home_firmware,
+  hub: "192.168.0.14:4000"
+
 config :shoehorn,
   init: [:nerves_runtime, :nerves_pack],
   app: Mix.Project.config()[:app]
@@ -20,7 +25,7 @@ config :nerves_runtime, :kernel, use_system_registry: false
 
 config :nerves,
   erlinit: [
-    hostname_pattern: "nerves-%s"
+    hostname_pattern: "lock-%s"
   ]
 
 # Authorize the device to receive firmware using your public key.
@@ -73,12 +78,12 @@ config :vintage_net,
 
 config :mdns_lite,
   # The `host` key specifies what hostnames mdns_lite advertises.  `:hostname`
-  # advertises the device's hostname.local. For the official Nerves systems, this
-  # is "nerves-<4 digit serial#>.local".  mdns_lite also advertises
+  # advertises the device's hostname.local. For our system, this
+  # is "lock-<4 digit serial#>.local".  mdns_lite also advertises
   # "nerves.local" for convenience. If more than one Nerves device is on the
   # network, delete "nerves" from the list.
 
-  host: [:hostname, "nerves"],
+  host: [:hostname],
   ttl: 120,
 
   # Advertise the following services over mDNS.

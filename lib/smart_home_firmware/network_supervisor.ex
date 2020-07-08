@@ -2,6 +2,10 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
   @moduledoc """
   Contains all the processes that should only be
   started once there is a working network connection
+
+  I don't know if this is still needed now we're using sockets
+
+  TODO: Supervisor fails on restart
   """
 
   use DynamicSupervisor
@@ -27,7 +31,7 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
 
   def start() do
     # Add modules that need a network connection here and they'll be
-    # started once a LAN connection is availiable
+    # started once a LAN connection is availiable.
     [
 
       {PhoenixClient.Socket, {@socket_ops, name: PhoenixClient.Socket}},
@@ -37,7 +41,6 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
       &DynamicSupervisor.start_child(__MODULE__, &1)
     )
 
-    Logger.info("Currently running #{inspect DynamicSupervisor.count_children(__MODULE__)} children")
   end
   def wait_for_internet() do
     Logger.info("Waiting for internet....")

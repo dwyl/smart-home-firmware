@@ -5,12 +5,13 @@ defmodule SmartHomeFirmware.MifareClientImplementation do
     Logger.info("Client init with pid #{inspect pid}")
   end
 
-  def handle_event(:card_detected, _card = %{tg: target_number, sens_res: sens_res, sel_res: sel_res, nfcid: identifier}) do
-
-    Logger.info("Detected new Mifare card with ID: #{Base.encode16(identifier)}")
+  def handle_event(:card_detected, _card = %{tg: _target_number, sens_res: _sens_res, sel_res: _sel_res, nfcid: identifier}) do
+    identifier
+    |> Base.encode16()
+    |> SmartHomeFirmware.Lock.nfc_read()
   end
 
-  def handle_event(:card_lost, _card = %{tg: target_number, sens_res: sens_res, sel_res: sel_res, nfcid: identifier}) do
+  def handle_event(:card_lost, _card = %{tg: _target_number, sens_res: _sens_res, sel_res: _sel_res, nfcid: identifier}) do
     Logger.info("Lost connection with Mifare card with ID: #{Base.encode16(identifier)}")
   end
 end

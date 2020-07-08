@@ -7,6 +7,14 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
   use DynamicSupervisor
   require Logger
 
+  @host Application.fetch_env!(:smart_home_firmware, :hub)
+  @socket_ops [
+    url: "ws://#{@host}/socket/websocket",
+    params: %{
+      name: "test"
+    }
+  ]
+
   def start_link(opts) do
     spawn(__MODULE__, :wait_for_internet, [])
     DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -21,11 +29,15 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
     # Add modules that need a network connection here and they'll be
     # started once a LAN connection is availiable
     [
+
+      {PhoenixClient.Socket, {@socket_ops, name: PhoenixClient.Socket}},
       SmartHomeFirmware.HubClient
     ]
     |> Enum.each(
       &DynamicSupervisor.start_child(__MODULE__, &1)
     )
+
+    Logger.info("Currently running #{inspect DynamicSupervisor.count_children(__MODULE__)} children")
   end
   def wait_for_internet() do
     Logger.info("Waiting for internet....")
@@ -35,10 +47,11 @@ defmodule SmartHomeFirmware.NetworkSupervisor do
         start()
       _target ->
         Logger.info("Waiting for vintagenet")
-        VintageNet.subscribe(["connection"])
+        VintageNet.subscribe(["connection"]) # Getting rid of this warning will be nice
 
         receive do
-          {VintageNet, ["connection"], _old_state, :lan, _metadata} ->
+          change ->
+            Logger.info(inspect(change))
             start()
         end
 

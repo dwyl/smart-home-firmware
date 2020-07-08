@@ -18,6 +18,7 @@ defmodule SmartHomeFirmware.Application do
         # Don't add stuff here that needs a Network connection!
         # Add it in `NetworkSupervisor`
         SmartHomeFirmware.NetworkSupervisor,
+        SmartHomeFirmware.Lock
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)

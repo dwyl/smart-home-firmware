@@ -50,7 +50,7 @@ defmodule SmartHomeFirmware.MixProject do
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_pack, "~> 0.2", targets: @all_targets},
-      {:nerves_io_pn532, path: "../nerves_io_pn532"},
+      {:nerves_io_pn532, git: "https://github.com/dwyl/nerves_io_pn532"},
 
 
       # Dependencies for specific targets

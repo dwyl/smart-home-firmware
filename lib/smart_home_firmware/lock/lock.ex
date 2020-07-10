@@ -7,12 +7,6 @@ defmodule SmartHomeFirmware.Lock do
 
   alias SmartHomeFirmware.HubClient
 
-  @default_state %{
-    mode: 0,
-    uuid: "",
-    name: "Unconfigured lock"
-  }
-
   @modes %{
     internal: 1,
     external: 2,
@@ -24,7 +18,15 @@ defmodule SmartHomeFirmware.Lock do
   end
 
   def init(_opts) do
-    {:ok, @default_state}
+    Logger.info("Starting lock controller...")
+    state = SmartHomeFirmware.State.get(:lock)
+    SmartHomeFirmware.State.subscribe(:lock)
+    {:ok, state}
+  end
+
+  def handle_info({:store_update, :lock, val}, state) do
+    Logger.info("State: lock updated to: #{inspect val}")
+    {:noreply, Map.merge(state, val)}
   end
 
   def setup(opts) do
@@ -38,11 +40,6 @@ defmodule SmartHomeFirmware.Lock do
 
   def nfc_read(identifier) do
     GenServer.cast(__MODULE__, {:nfc_read, identifier})
-  end
-
-  def handle_cast({:setup, params}, state) do
-    Logger.info("Configuring lock with params: #{inspect(params)}")
-    {:noreply, Map.merge(state, params)}
   end
 
   def handle_cast({:pair, params}, state) do

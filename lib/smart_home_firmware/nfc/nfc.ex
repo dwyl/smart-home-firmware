@@ -15,7 +15,6 @@ defmodule SmartHomeFirmware.NFC do
   end
 
   def start_link(_opts) do
-    Logger.info("Attempting to start...")
     with {:ok, pid} <- MifareClientImplementation.start_link(),
          :ok <- MifareClientImplementation.open(pid, "ttyS0"),
          :ok <- MifareClientImplementation.start_target_detection(pid) do

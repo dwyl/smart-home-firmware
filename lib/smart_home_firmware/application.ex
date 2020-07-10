@@ -17,7 +17,7 @@ defmodule SmartHomeFirmware.Application do
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :rest_for_one, name: SmartHomeFirmware.Supervisor]
+    opts = [strategy: :one_for_one, name: SmartHomeFirmware.Supervisor]
     children =
       [
         # Children for all targets
@@ -26,6 +26,7 @@ defmodule SmartHomeFirmware.Application do
         #
         # Don't add stuff here that needs a Network connection!
         # Add it in `NetworkSupervisor`
+        SmartHomeFirmware.State,
         {PhoenixClient.Socket, {@socket_ops, name: PhoenixClient.Socket}},
         SmartHomeFirmware.Lock,
         SmartHomeFirmware.HubClient,

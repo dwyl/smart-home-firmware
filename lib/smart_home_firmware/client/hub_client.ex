@@ -83,7 +83,7 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   defp handle_handshake_resp(body) do
-    SmartHomeFirmware.Lock.setup(%{
+    SmartHomeFirmware.State.put(:lock, %{
       mode: body["mode"],
       uuid: body["uuid"],
       name: body["name"]

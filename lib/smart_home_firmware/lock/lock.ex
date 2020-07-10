@@ -8,7 +8,7 @@ defmodule SmartHomeFirmware.Lock do
   alias SmartHomeFirmware.HubClient
 
   @default_state %{
-    mode: 1,
+    mode: 0,
     uuid: "",
     name: "Unconfigured lock"
   }
@@ -66,7 +66,16 @@ defmodule SmartHomeFirmware.Lock do
     {:noreply, state}
   end
 
-  def handle_cast({:nfc_read, _}, %{mode: mode}) do
-    Logger.info("Unimplemented mode: #{inspect mode}")
+  def handle_cast({:nfc_read, identifier}, %{mode: 1, uuid: uuid} = state) do
+    resp = HubClient.verify_access(identifier, uuid)
+    Logger.info("Got access: #{inspect resp.user["email"]}: #{resp.access}")
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:nfc_read, _}, %{mode: mode} = state) do
+    Logger.info("Unimplemented mode: #{inspect mode}/Lock not configured")
+
+    {:noreply, state}
   end
 end

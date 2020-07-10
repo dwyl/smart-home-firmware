@@ -23,6 +23,10 @@ defmodule SmartHomeFirmware.HubClient do
     GenServer.cast(__MODULE__, {:pair, pair})
   end
 
+  def verify_access(device_id, uuid) do
+    GenServer.call(__MODULE__, {:verify_access, {device_id, uuid}})
+  end
+
   def reset_state() do
     GenServer.cast(__MODULE__, :reset_state)
   end
@@ -36,14 +40,24 @@ defmodule SmartHomeFirmware.HubClient do
     {:noreply, %{ state | channel: channel}}
   end
 
+  ####
+  # Handle incoming Phoenix messages
+  ####
+
   def handle_info(%Message{event: "mode:pair", payload: payload}, state) do
     SmartHomeFirmware.Lock.do_pairing(payload)
     {:noreply, state}
   end
 
-  def handle_info(%Message{event: event}) do
+  def handle_info(%Message{event: event}, state) do
     Logger.info("Received uncrecognised event: #{event}")
+
+    {:noreply, state}
   end
+
+  ####
+  # Handle internal calls
+  ####
 
   def handle_cast({:pair, pair_data}, state) do
     Channel.push(state.channel, "pair:complete", pair_data)
@@ -57,6 +71,15 @@ defmodule SmartHomeFirmware.HubClient do
     handle_handshake_resp(reset)
 
     {:noreply, state}
+  end
+
+  def handle_call({:verify_access, {device, uuid}}, _from, state) do
+    {:ok, %{"user" => user, "access" => access}} = Channel.push(state.channel, "access:request", %{
+      uuid: uuid,
+      device: device
+    })
+
+    {:reply, %{user: user, access: access}, state}
   end
 
   defp handle_handshake_resp(body) do

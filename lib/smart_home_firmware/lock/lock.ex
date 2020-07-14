@@ -65,7 +65,7 @@ defmodule SmartHomeFirmware.Lock do
 
   def handle_cast({:nfc_read, identifier}, %{mode: 1, uuid: uuid} = state) do
     resp = HubClient.verify_access(identifier, uuid)
-    Logger.info("Got access: #{inspect resp.user["email"]}: #{resp.access}")
+    HubClient.send_event("Got access: #{inspect resp.user["email"]}: #{resp.access}")
 
     {:noreply, state}
   end

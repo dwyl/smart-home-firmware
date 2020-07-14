@@ -6,18 +6,12 @@ defmodule SmartHomeFirmware.Application do
   use Application
 
   @host Application.fetch_env!(:smart_home_firmware, :hub)
-  @socket_ops [
-    url: "ws://#{@host}/socket/websocket",
-    reconnect_interval: 15_000,
-    params: %{
-      name: "test"
-    }
-  ]
 
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: SmartHomeFirmware.Supervisor]
+
     children =
       [
         # Children for all targets
@@ -27,9 +21,9 @@ defmodule SmartHomeFirmware.Application do
         # Don't add stuff here that needs a Network connection!
         # Add it in `NetworkSupervisor`
         SmartHomeFirmware.State,
-        {PhoenixClient.Socket, {@socket_ops, name: PhoenixClient.Socket}},
+        {PhoenixClient.Socket, {get_socket_opts(), name: PhoenixClient.Socket}},
         SmartHomeFirmware.Lock,
-        SmartHomeFirmware.HubClient,
+        SmartHomeFirmware.HubClient
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)
@@ -50,6 +44,17 @@ defmodule SmartHomeFirmware.Application do
       # Children for all targets except host
       # Starts a worker by calling: SmartHomeFirmware.Worker.start_link(arg)
       # {SmartHomeFirmware.Worker, arg},
+    ]
+  end
+
+  def get_socket_opts() do
+    {:ok, hostname} = :inet.gethostname()
+    [
+      url: "ws://#{@host}/socket/websocket",
+      reconnect_interval: 15_000,
+      params: %{
+        name: to_string(hostname)
+      }
     ]
   end
 

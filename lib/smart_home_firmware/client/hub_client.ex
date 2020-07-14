@@ -23,6 +23,10 @@ defmodule SmartHomeFirmware.HubClient do
     GenServer.cast(__MODULE__, {:pair, pair})
   end
 
+  def send_event(event_string) do
+    GenServer.cast(__MODULE__, {:event_out, event_string})
+  end
+
   def verify_access(device_id, uuid) do
     GenServer.call(__MODULE__, {:verify_access, {device_id, uuid}})
   end
@@ -49,6 +53,14 @@ defmodule SmartHomeFirmware.HubClient do
     {:noreply, state}
   end
 
+  def handle_info(%Message{event: "phx_error"}, state) do
+    # Try and reconnect
+    send(self(), :startup)
+
+    Logger.info("Got error, trying to reconnect to hub")
+    {:noreply, state}
+  end
+
   def handle_info(%Message{event: event}, state) do
     Logger.info("Received uncrecognised event: #{event}")
 
@@ -69,6 +81,12 @@ defmodule SmartHomeFirmware.HubClient do
     {:ok, reset} = Channel.push(state.channel, "reset", %{})
 
     handle_handshake_resp(reset)
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:event_out, event}, state) do
+    Channel.push(state.channel, "event", event)
 
     {:noreply, state}
   end

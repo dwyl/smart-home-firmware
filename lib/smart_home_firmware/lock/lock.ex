@@ -7,12 +7,6 @@ defmodule SmartHomeFirmware.Lock do
 
   alias SmartHomeFirmware.HubClient
 
-  @modes %{
-    internal: 1,
-    external: 2,
-    pair: 3
-  }
-
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -33,28 +27,12 @@ defmodule SmartHomeFirmware.Lock do
     GenServer.cast(__MODULE__, {:setup, opts})
   end
 
-  def do_pairing(opts) do
-    Logger.info("Putting lock in pairing mode...")
-    GenServer.cast(__MODULE__, {:pair, opts})
-  end
-
   def nfc_read(identifier) do
     GenServer.cast(__MODULE__, {:nfc_read, identifier})
   end
 
-  def handle_cast({:pair, params}, state) do
-    state =
-      state
-      |> Map.replace!(:mode, @modes.pair)
-      |> Map.put(:pair_params, params)
-
-    Logger.info(inspect(state))
-    {:noreply, state}
-  end
-
   def handle_cast({:nfc_read, identifier}, %{mode: 3} = state) do
-    state
-    |> Map.get(:pair_params)
+    SmartHomeFirmware.State.get(:pair_params)
     |> Map.put("serial", identifier)
     |> HubClient.send_pair()
 

@@ -8,6 +8,12 @@ defmodule SmartHomeFirmware.HubClient do
 
   alias PhoenixClient.{Channel, Socket, Message}
 
+  @modes %{
+    internal: 1,
+    external: 2,
+    pair: 3
+  }
+
 
   def start_link(opts) do
     Logger.info("Hub service starting....")
@@ -49,7 +55,11 @@ defmodule SmartHomeFirmware.HubClient do
   ####
 
   def handle_info(%Message{event: "mode:pair", payload: payload}, state) do
-    SmartHomeFirmware.Lock.do_pairing(payload)
+    store = SmartHomeFirmware.State.get(:lock)
+    |> Map.replace!(:mode, @modes.pair)
+
+    SmartHomeFirmware.State.put(:lock, store)
+    SmartHomeFirmware.State.put(:pair_params, payload)
     {:noreply, state}
   end
 

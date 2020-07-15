@@ -17,7 +17,8 @@ defmodule SmartHomeFirmware.HubClient do
 
   def start_link(opts) do
     Logger.info("Hub service starting....")
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   def init(_opts) do

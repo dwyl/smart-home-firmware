@@ -44,7 +44,8 @@ defmodule SmartHomeFirmware.MixProject do
       {:ring_logger, "~> 0.6"},
       {:toolshed, "~> 0.2"},
       {:httpoison, "~> 1.6"},
-      {:phoenix_client, "~> 0.3"},
+      {:phoenix_gen_socket_client, "~> 3.0.0"},
+      {:websocket_client, "~> 1.2"},
       {:jason, "~> 1.2"},
 
       # Dependencies for all targets except :host

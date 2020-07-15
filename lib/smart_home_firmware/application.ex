@@ -20,7 +20,7 @@ defmodule SmartHomeFirmware.Application do
         #
         # Don't add stuff here that needs a Network connection!
         # Add it in `NetworkSupervisor`
-        SmartHomeFirmware.State,
+        {SmartHomeFirmware.State, name: SmartHomeFirmware},
         {PhoenixClient.Socket, {get_socket_opts(), name: PhoenixClient.Socket}},
         SmartHomeFirmware.Lock,
         SmartHomeFirmware.HubClient

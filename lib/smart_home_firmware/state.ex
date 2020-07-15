@@ -8,32 +8,40 @@ defmodule SmartHomeFirmware.State do
   alias SmartHomeFirmware.State.Manager
 
   @initial_state %{
-    name: "Uninitialzed Device",
-    uuid: nil,
-    mode: 0
+    lock: %{
+      name: "Uninitialized Device",
+      uuid: nil,
+      mode: 0
+    }
   }
 
-  def start_link(_opts) do
-    SmartHomeFirmware.State.Supervisor.start_link(initial_state: @initial_state)
+  def start_link(opts) do
+    [initial_state: @initial_state]
+    |> Keyword.merge(opts)
+    |> SmartHomeFirmware.State.Supervisor.start_link()
   end
 
-  def child_spec(_opts) do
-    SmartHomeFirmware.State.Supervisor.child_spec(initial_state: @initial_state)
+  def child_spec(opts) do
+    %{
+      id: Keyword.get(opts, :name, SmartHomeFirmware.State),
+      start: {SmartHomeFirmware.State, :start_link, [opts]},
+      type: :supervisor
+    }
   end
 
   def subscribe(key) do
-    Registry.register(SmartHomeFirmware.Registry, :state_registry, key)
+    Manager.subscribe(SmartHomeFirmware, key)
   end
 
-  def unsubscribe() do
-    Registry.unregister(SmartHomeFirmware.Registry, :state_registry)
+  def unsubscribe(_key) do
+    Manager.unsubscribe(SmartHomeFirmware)
   end
 
   def get(key) do
-    Manager.get(key)
+    Manager.get(SmartHomeFirmware, key)
   end
 
   def put(key, val) do
-    Manager.put(key, val)
+    Manager.put(SmartHomeFirmware, key, val)
   end
 end

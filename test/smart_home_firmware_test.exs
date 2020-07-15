@@ -20,13 +20,29 @@ defmodule SmartHomeFirmwareTest do
     SmartHomeFirmware.State.subscribe(:test)
     SmartHomeFirmware.State.put(:test, :test_val)
 
-    assert_receive {:store_update, :test, :test_val}, 20
+    assert_receive {:store_update, :test, :test_val}, 200
   end
 
   test "can unsubscribe to state" do
     SmartHomeFirmware.State.unsubscribe(:test)
     SmartHomeFirmware.State.put(:test, :new_val)
 
-    refute_receive {:store_update, :test, :new_val}, 20
+    refute_receive {:store_update, :test, :new_val}, 200
   end
+
+  test "pair mode" do
+    SmartHomeFirmware.State.subscribe(:lock)
+    SmartHomeFirmware.HubClient.handle_message(
+      "wrong topic",
+      "mode:pair",
+      %{"user" => %{"email" => "test@example.com"}},
+      "fake transport",
+      %{}
+    )
+
+    assert_receive {:store_update, :lock, %{mode: 3}}
+
+
+  end
+
 end

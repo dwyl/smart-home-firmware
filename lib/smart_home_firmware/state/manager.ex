@@ -3,22 +3,32 @@ defmodule SmartHomeFirmware.State.Manager do
 
   require Logger
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link({name, _registry, _opts} = args) do
+    GenServer.start_link(__MODULE__, args, name: name)
   end
 
-  def init(opts) do
+  def init({_name, registry, opts}) do
     init_state = Keyword.fetch!(opts, :initial_state)
-    state = %{_private: %{}, store: %{lock: init_state}}
+    state = %{private: %{registry: registry}, store: init_state}
     {:ok, state}
   end
 
-  def get(key) do
-    GenServer.call(__MODULE__, {:get, key})
+  def get(state, key) do
+    GenServer.call(state, {:get, key})
   end
 
-  def put(key, val) do
-    GenServer.cast(__MODULE__, {:put, key, val})
+  def put(state, key, val) do
+    GenServer.cast(state, {:put, key, val})
+  end
+
+  def subscribe(name, key) do
+    SmartHomeFirmware.State.Supervisor.registry_name(name)
+    |> Registry.register(:state_registry, key)
+  end
+
+  def unsubscribe(name) do
+    SmartHomeFirmware.State.Supervisor.registry_name(name)
+    |> Registry.unregister(:state_registry)
   end
 
   def handle_call({:get, key}, _caller, %{store: store} = state) do
@@ -34,16 +44,16 @@ defmodule SmartHomeFirmware.State.Manager do
         {:noreply, state}
       _ ->
         updated_store = Map.put(store, key, val)
-        dispatch(key, val)
+        dispatch(state, key, val)
 
         {:noreply, Map.replace!(state, :store, updated_store)}
     end
   end
 
-  defp dispatch(key, val) do
+  defp dispatch(state, key, val) do
     msg = {:store_update, key, val}
 
-    Registry.match(SmartHomeFirmware.Registry, :state_registry, key)
+    Registry.match(state.private.registry, :state_registry, key)
     |> Enum.each(fn {pid, _match} -> send(pid, msg) end)
   end
 end

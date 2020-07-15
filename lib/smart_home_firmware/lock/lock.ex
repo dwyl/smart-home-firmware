@@ -54,4 +54,10 @@ defmodule SmartHomeFirmware.Lock do
 
     {:noreply, state}
   end
+
+  # Get genserver state for testing.
+  def handle_call(:fetch_state, _from, state) do
+
+    {:reply, state, state}
+  end
 end

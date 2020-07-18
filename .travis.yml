@@ -10,7 +10,7 @@ cache:
 before_script:
   - mix local.hex --force
   - mix local.rebar --force
-  - mix archive.install --force nerves_bootstrap
+  - mix archive.install --force hex nerves_bootstrap
 script:
   - mix do setup, coveralls.json
 after_success:

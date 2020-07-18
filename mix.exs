@@ -17,7 +17,7 @@ defmodule SmartHomeFirmware.MixProject do
       deps: deps(),
       releases: [{@app, release()}],
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_target: [run: :host, test: :host]
+      preferred_cli_target: [run: :host, test: :host, coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 

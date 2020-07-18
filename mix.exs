@@ -63,6 +63,8 @@ defmodule SmartHomeFirmware.MixProject do
       {:nerves_system_rpi4, "~> 1.12", runtime: false, targets: :rpi4},
       {:nerves_system_bbb, "~> 2.7", runtime: false, targets: :bbb},
       {:nerves_system_x86_64, "~> 1.12", runtime: false, targets: :x86_64},
+
+      {:excoveralls, "~> 0.10", only: :test},
     ]
   end
 

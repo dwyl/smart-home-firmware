@@ -16,6 +16,7 @@ defmodule SmartHomeFirmware.MixProject do
       aliases: [loadconfig: [&bootstrap/1]],
       deps: deps(),
       releases: [{@app, release()}],
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_target: [run: :host, test: :host]
     ]
   end

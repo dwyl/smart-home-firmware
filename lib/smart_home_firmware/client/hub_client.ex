@@ -160,10 +160,16 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   defp handle_handshake_resp(body) do
+    # TODO: Adapt backend to modularize this more -
+    # I don't like having to split this out here.
     SmartHomeFirmware.State.put(:lock, %{
       mode: body["mode"],
       uuid: body["uuid"],
-      name: body["name"]
+    })
+
+    SmartHomeFirmware.State.put(:self, %{
+      name: body["name"],
+      feature_flags: body["feature_flags"]
     })
   end
 

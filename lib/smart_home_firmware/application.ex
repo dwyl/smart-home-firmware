@@ -19,7 +19,8 @@ defmodule SmartHomeFirmware.Application do
         # Don't add stuff here that needs a Network connection!
         # Add it in `NetworkSupervisor`
         {SmartHomeFirmware.State, name: SmartHomeFirmware},
-        SmartHomeFirmware.Lock,
+        SmartHomeFirmware.FeatureSupervisor,
+        SmartHomeFirmware.FeatureManager,
         SmartHomeFirmware.HubClient
       ] ++ children(target())
 

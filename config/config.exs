@@ -26,6 +26,8 @@ config :logger, backends: [RingLogger]
 config :smart_home_firmware,
   hub: "192.168.0.14:4000"
 
-if Mix.target() != :host do
+if Mix.target() == :host do
+  import_config "host.exs"
+else
   import_config "target.exs"
 end

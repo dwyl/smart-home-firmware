@@ -8,7 +8,7 @@ defmodule SmartHomeFirmware.FeatureManager do
   # Here we define the flags and associated modules
   @feature_flags [
     lock: SmartHomeFirmware.Lock,
-    display: SmartHomeFirmware.NotImplemented
+    display: SmartHomeFirmware.Display
   ]
 
   use GenServer

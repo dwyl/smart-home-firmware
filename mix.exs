@@ -55,7 +55,8 @@ defmodule SmartHomeFirmware.MixProject do
       {:nerves_io_pn532, git: "https://github.com/dwyl/nerves_io_pn532"},
 
       # Scenic Dependencies
-      {:scenic, "~> 0.10", targets: [:host, :rpi3]},
+      # {:scenic, "~> 0.10", targets: [:host, :rpi3]},
+      {:scenic, "~> 0.10"},
       {:scenic_sensor, "~> 0.7", targets: [:host, :rpi3]},
       #Driver for host only
       {:scenic_driver_glfw, "~> 0.10", targets: :host},

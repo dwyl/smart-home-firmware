@@ -5,6 +5,7 @@ import Config
 # involved with firmware updates.
 
 config :logger, level: :info
+config :logger, backends: [RingLogger]
 
 config :smart_home_firmware,
   hub: "192.168.0.14:4000"

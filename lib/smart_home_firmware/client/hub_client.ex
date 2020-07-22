@@ -19,8 +19,8 @@ defmodule SmartHomeFirmware.HubClient do
     send(__MODULE__, {:pair, pair})
   end
 
-  def send_event(event_string) do
-    send(__MODULE__, {:event_out, event_string})
+  def send_event(event) do
+    send(__MODULE__, {:event_out, event})
   end
 
   def verify_access(device_id, uuid) do
@@ -28,7 +28,7 @@ defmodule SmartHomeFirmware.HubClient do
 
     # Hack on a syncronous response
     receive do
-      resp ->
+      %{access: _} = resp ->
         resp
     end
 
@@ -93,6 +93,12 @@ defmodule SmartHomeFirmware.HubClient do
 
     SmartHomeFirmware.State.put(:lock, store)
     SmartHomeFirmware.State.put(:pair_params, payload)
+    {:ok, state}
+  end
+
+  def handle_message(_topic, "display_event", payload, _transport, state) do
+    SmartHomeFirmware.state.put(:display, payload)
+
     {:ok, state}
   end
 

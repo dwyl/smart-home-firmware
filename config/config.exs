@@ -21,7 +21,7 @@ config :nerves, source_date_epoch: "1594028364"
 # See https://hexdocs.pm/ring_logger/readme.html for more information on
 # configuring ring_logger.
 
-config :logger, backends: [RingLogger]
+
 
 config :smart_home_firmware,
   hub: "192.168.0.14:4000"

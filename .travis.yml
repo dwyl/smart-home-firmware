@@ -8,6 +8,8 @@ cache:
   - _build
   - deps
 before_install:
+  - sudo apt-get update
+  - sudo apt-get -y pkgconf libglfw3 libglfw3-dev libglew2.0 libglew-dev
   - mix local.hex --force
   - mix local.rebar --force
   - mix archive.install --force hex nerves_bootstrap

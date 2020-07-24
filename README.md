@@ -2,7 +2,10 @@
 
 # Smart Home Firmware
 
-## Very much a WIP
+## Very much a Work-in-Progress 🚧
+
+[![Build Status](https://img.shields.io/travis/dwyl/auth/master.svg?style=flat-square)](https://travis-ci.org/dwyl/auth)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/auth/master.svg?style=flat-square)](http://codecov.io/github/dwyl/auth?branch=master)
 
 </div>
 
@@ -18,7 +21,7 @@ We're using UART to connect to the board, so connect the pins up as follows:
 | Pi           | PN532 |
 |--------------|-------|
 5v             | 5v
-Ground         | Ground 
+Ground         | Ground
 TXD (GPIO 14)  | RX
 RXD (GPIO 15)  | TX
 
@@ -29,6 +32,9 @@ git clone https://github.com/dwyl/smart-home-firmware
 ```
 
 ### 3. Build the firmware and burn it to an SD card
+
+For the firmware to compile you will need a few build dependencies installed,
+please see: https://github.com/dwyl/learn-scenic#installing
 
 #### 3.1 set environment variables
 ```

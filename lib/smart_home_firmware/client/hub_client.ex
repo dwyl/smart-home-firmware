@@ -28,7 +28,7 @@ defmodule SmartHomeFirmware.HubClient do
 
     # Hack on a syncronous response
     receive do
-      %{access: _} = resp ->
+      resp = %{access: _result} ->
         resp
     end
 
@@ -96,8 +96,9 @@ defmodule SmartHomeFirmware.HubClient do
     {:ok, state}
   end
 
-  def handle_message(_topic, "display_event", payload, _transport, state) do
-    SmartHomeFirmware.state.put(:display, payload)
+  def handle_message(_topic, "event", payload, _transport, state) do
+
+    SmartHomeFirmware.State.put(:display, payload["message"])
 
     {:ok, state}
   end
@@ -119,9 +120,16 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   def handle_info({:event_out, event}, transport, state) do
-    GenSocketClient.push(transport, state.channel, "event", event)
+    Logger.info("Client: Pushing new event: #{inspect event}")
+    push = GenSocketClient.push(transport, state.channel, "event", event)
 
-    {:ok, state}
+    case push do
+      {:ok, _ref} -> {:ok, state}
+
+      {:error, reason} ->
+        Logger.info(inspect reason)
+        {:ok, state}
+    end
   end
 
   def handle_info({:verify_access, {device, uuid, pid}}, transport, state) do
@@ -187,7 +195,7 @@ defmodule SmartHomeFirmware.HubClient do
 
   def handle_channel_closed(topic, _payload, _transport, state) do
     Logger.error("Channel #{topic} closed...")
-    Process.send_after(self(), {:join}, 5000)
+    Process.send_after(self(), :join, 5000)
 
     {:ok, Map.put(state, :channel, nil)}
   end

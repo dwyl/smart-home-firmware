@@ -33,18 +33,18 @@ defmodule SmartHomeFirmware.Display.Scene.Welcome do
     {:ok, @graph, push: @graph}
   end
 
-  def handle_info({:store_update, :display, {:access, user}}, graph) do
+  def handle_info({:store_update, :display, %{"access" => true, "user" => user}}, graph) do
     new_graph = Graph.modify(graph, :instruction_text,
       &text(&1, "Welcome to home #{user["email"]}"))
 
-    {:noreply, new_graph, @message_time, push: new_graph}
+    {:noreply, new_graph, [timeout: @message_time, push: new_graph]}
   end
 
-  def handle_info({:store_update, :display, {:denied, user}}, graph) do
+  def handle_info({:store_update, :display, %{"access" => false}}, graph) do
     new_graph = Graph.modify(graph, :instruction_text,
-      &text(&1, "Your access has been denied"))
+      &text(&1, "Your access has been denied, please contact an admin"))
 
-
+    {:noreply, new_graph, [timeout: @message_time, push: new_graph]}
   end
 
   # Always make sure to reset back to default.
@@ -52,6 +52,11 @@ defmodule SmartHomeFirmware.Display.Scene.Welcome do
     graph = Graph.modify(graph, :instruction_text,
       &text(&1, @instruction_locked))
 
+    SmartHomeFirmware.State.put(:display, nil)
     {:noreply, graph, push: graph}
+  end
+
+  def handle_info(_unhandled, graph) do
+    {:noreply, graph}
   end
 end

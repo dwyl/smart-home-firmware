@@ -1,3 +1,4 @@
+dist: bionic
 language: elixir
 elixir:
 - 1.10.3
@@ -8,8 +9,8 @@ cache:
   - _build
   - deps
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y pkgconf libglfw3 libglfw3-dev libglew2.0 libglew-dev
+  - apt-get update
+  - apt-get install -y pkgconf libglfw3 libglfw3-dev libglew2.0 libglew-dev
   - mix local.hex --force
   - mix local.rebar --force
   - mix archive.install --force hex nerves_bootstrap

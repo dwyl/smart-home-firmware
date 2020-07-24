@@ -4,8 +4,8 @@
 
 ## Very much a Work-in-Progress 🚧
 
-[![Build Status](https://img.shields.io/travis/dwyl/auth/master.svg?style=flat-square)](https://travis-ci.org/dwyl/auth)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/auth/master.svg?style=flat-square)](http://codecov.io/github/dwyl/auth?branch=master)
+[![Build Status](https://img.shields.io/travis/com/dwyl/smart-home-firmware/master.svg?style=flat-square)](https://travis-ci.com/dwyl/smart-home-firmware)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/smart-home-firmware/master.svg?style=flat-square)](http://codecov.io/github/dwyl/smart-home-firmware?branch=master)
 
 </div>
 

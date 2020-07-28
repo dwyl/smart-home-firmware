@@ -5,6 +5,8 @@ defmodule SmartHomeFirmware.Lock do
   use GenServer
   require Logger
 
+  @unlock_time 10_000
+
   alias SmartHomeFirmware.HubClient
 
   def start_link(opts) do
@@ -14,7 +16,12 @@ defmodule SmartHomeFirmware.Lock do
 
   def init(_opts) do
     Logger.info("Starting lock controller...")
-    state = SmartHomeFirmware.State.get(:lock)
+    {:ok, gpio} = Circuits.GPIO.open(4, :output)
+    state =
+      SmartHomeFirmware.State.get(:lock)
+      |> Map.put(:relay_out, gpio)
+
+
     SmartHomeFirmware.State.subscribe(:lock)
     {:ok, state}
   end
@@ -22,6 +29,16 @@ defmodule SmartHomeFirmware.Lock do
   def handle_info({:store_update, :lock, val}, state) do
     Logger.info("State: lock updated to: #{inspect val}")
     {:noreply, Map.merge(state, val)}
+  end
+
+  def handle_info(:unlock, state) do
+    Circuits.GPIO.write(state.relay_out, 1)
+    {:noreply, state, @unlock_time}
+  end
+
+  def handle_info(:timeout, state) do
+    Circuits.GPIO.write(state.relay_out, 0)
+    {:noreply, state}
   end
 
   def setup(opts) do
@@ -46,8 +63,11 @@ defmodule SmartHomeFirmware.Lock do
     resp = HubClient.verify_access(identifier, uuid)
     Logger.info("Got access: #{inspect resp}")
     case resp.access do
-      true -> HubClient.send_event(%{access: true, user: resp.user})
-      _ -> HubClient.send_event(%{access: false})
+      true ->
+        HubClient.send_event(%{access: true, user: resp.user})
+        send(self(), :unlock)
+      _ ->
+        HubClient.send_event(%{access: false})
     end
 
     {:noreply, state}

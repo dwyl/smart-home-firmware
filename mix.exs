@@ -53,6 +53,7 @@ defmodule SmartHomeFirmware.MixProject do
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_pack, "~> 0.2", targets: @all_targets},
       {:nerves_io_pn532, git: "https://github.com/dwyl/nerves_io_pn532"},
+      {:circuits_gpio, "~> 0.4", targets: @all_targets},
 
       # Scenic Dependencies
       # {:scenic, "~> 0.10", targets: [:host, :rpi3]},

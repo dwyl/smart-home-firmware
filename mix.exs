@@ -48,12 +48,12 @@ defmodule SmartHomeFirmware.MixProject do
       {:phoenix_gen_socket_client, "~> 3.0.0"},
       {:websocket_client, "~> 1.2"},
       {:jason, "~> 1.2"},
+      {:circuits_gpio, "~> 0.4"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_pack, "~> 0.2", targets: @all_targets},
       {:nerves_io_pn532, git: "https://github.com/dwyl/nerves_io_pn532"},
-      {:circuits_gpio, "~> 0.4", targets: @all_targets},
 
       # Scenic Dependencies
       # {:scenic, "~> 0.10", targets: [:host, :rpi3]},

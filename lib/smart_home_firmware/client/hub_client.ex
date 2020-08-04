@@ -42,12 +42,13 @@ defmodule SmartHomeFirmware.HubClient do
     Logger.info("Hub service starting....")
     name = Keyword.get(opts, :name, __MODULE__)
     transport = Keyword.get(opts, :transport,  Phoenix.Channels.GenSocketClient.Transport.WebSocketClient)
+    socket_opts = Keyword.get(opts, :socket_opts, [])
 
     GenSocketClient.start_link(
       __MODULE__,
       transport,
       opts, # arbitary argument
-      [], # socket opts
+      socket_opts, # socket opts
       name: name # GenServer opts
     )
   end

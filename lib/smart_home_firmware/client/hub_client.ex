@@ -207,7 +207,7 @@ defmodule SmartHomeFirmware.HubClient do
     {:noreply, state}
   end
 
-  defp get_channel() do
+  def get_channel() do
     {:ok, hostname} = :inet.gethostname()
 
     "lock:" <> to_string(hostname)

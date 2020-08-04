@@ -63,8 +63,41 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
 
       pid = start_supervised!({SmartHomeFirmware.HubClient, opts})
 
-      %{client: pid}
+      # Mock the transport map
+      transport = %{
+        transport_mod: SmartHomeFirmwareTest.HubClientTest.FakeTransport,
+        transport_pid: self(),
+        serializer: SmartHomeFirmwareTest.HubClientTest.FakeEncoder
+      }
+
+      %{client: pid, transport: transport}
     end
 
+    # Test callbacks
+
+    test "handle_connected inserts channel", %{transport: transport} do
+      result = HubClient.handle_connected(transport, %{})
+      assert result == {:ok, %{
+        :channel => HubClient.get_channel()
+      }}
+    end
+
+    test "handle_join updates state", %{transport: transport} do
+      SmartHomeFirmware.State.subscribe(:self)
+
+      {:ok, %{}} =
+        HubClient.handle_joined("lock:test", %{
+          "mode" => "0",
+          "uuid" => "0",
+          "name" => "test",
+          "feature_flags" => []
+        }, transport, %{})
+
+      assert_receive {:store_update, :self, %{name: "test"}}
+    end
+
+    test "handle_message - mode:pair updates lock state", %{transport: transport} do
+
+    end
   end
 end

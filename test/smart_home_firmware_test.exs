@@ -7,7 +7,7 @@ defmodule SmartHomeFirmwareTest do
   test "default state initialized" do
     state = SmartHomeFirmware.State.get(:lock)
 
-    assert state.name == "Uninitialized Device"
+    assert state.uuid == "0"
   end
 
   test "can put state" do
@@ -20,14 +20,14 @@ defmodule SmartHomeFirmwareTest do
     SmartHomeFirmware.State.subscribe(:test)
     SmartHomeFirmware.State.put(:test, :test_val)
 
-    assert_receive {:store_update, :test, :test_val}, 3000
+    assert_receive {:store_update, :test, :test_val}, 10_000
   end
 
   test "can unsubscribe to state" do
     SmartHomeFirmware.State.unsubscribe(:test)
     SmartHomeFirmware.State.put(:test, :new_val)
 
-    refute_receive {:store_update, :test, :new_val}, 3000
+    refute_receive {:store_update, :test, :new_val}, 10_000
   end
 
   test "pair mode" do

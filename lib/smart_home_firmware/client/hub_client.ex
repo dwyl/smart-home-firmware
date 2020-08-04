@@ -15,16 +15,16 @@ defmodule SmartHomeFirmware.HubClient do
     pair: 3
   }
 
-  def send_pair(pair) do
-    send(__MODULE__, {:pair, pair})
+  def send_pair(pair, pid \\ __MODULE__) do
+    send(pid, {:pair, pair})
   end
 
-  def send_event(event) do
-    send(__MODULE__, {:event_out, event})
+  def send_event(event, pid \\ __MODULE__) do
+    send(pid, {:event_out, event})
   end
 
-  def verify_access(device_id, uuid) do
-    send(__MODULE__, {:verify_access, {device_id, uuid, self()}})
+  def verify_access(device_id, uuid, pid \\ __MODULE__) do
+    send(pid, {:verify_access, {device_id, uuid, self()}})
 
     # Hack on a syncronous response
     receive do
@@ -34,17 +34,18 @@ defmodule SmartHomeFirmware.HubClient do
 
   end
 
-  def reset_state() do
-    send(__MODULE__, :reset_state)
+  def reset_state(pid \\ __MODULE__) do
+    send(pid, :reset_state)
   end
 
   def start_link(opts) do
     Logger.info("Hub service starting....")
     name = Keyword.get(opts, :name, __MODULE__)
+    transport = Keyword.get(opts, :transport,  Phoenix.Channels.GenSocketClient.Transport.WebSocketClient)
 
     GenSocketClient.start_link(
       __MODULE__,
-      Phoenix.Channels.GenSocketClient.Transport.WebSocketClient,
+      transport,
       opts, # arbitary argument
       [], # socket opts
       name: name # GenServer opts

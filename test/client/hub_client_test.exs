@@ -1,5 +1,5 @@
 defmodule SmartHomeFirmwareTest.HubClientTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case # No async due to some race conditions
   require Logger
 
   alias SmartHomeFirmware.HubClient
@@ -97,7 +97,12 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
     end
 
     test "handle_message - mode:pair updates lock state", %{transport: transport} do
+      SmartHomeFirmware.State.subscribe(:pair_params)
+      payload = %{test: :val}
 
+      HubClient.handle_message("", "mode:pair", payload, transport, %{})
+
+      assert_receive {:store_update, :pair_params, payload}
     end
   end
 end

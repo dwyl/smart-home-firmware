@@ -22,3 +22,4 @@ after_success:
 env:
   global:
   - MIX_ENV=test
+  - CIRCUITS_MIX_ENV=test

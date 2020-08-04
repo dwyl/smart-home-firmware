@@ -20,7 +20,9 @@ config :nerves, source_date_epoch: "1594028364"
 # Use Ringlogger as the logger backend and remove :console.
 # See https://hexdocs.pm/ring_logger/readme.html for more information on
 # configuring ring_logger.
-
+if Mix.env() == :test do
+  config :logger, level: :error
+end
 
 
 config :smart_home_firmware,

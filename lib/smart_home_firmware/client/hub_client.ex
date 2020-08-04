@@ -76,7 +76,7 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   def handle_disconnected(reason, state) do
-    Logger.error("disconnected: #{inspect reason}")
+    Logger.warn("disconnected: #{inspect reason}")
     Process.send_after(self(), :connect, :timer.seconds(1))
 
     {:ok, state}
@@ -189,12 +189,12 @@ defmodule SmartHomeFirmware.HubClient do
 
   # Error handlers:
   def handle_join_error(topic, payload, _transport, state) do
-    Logger.error("Could not join #{topic}: #{inspect payload}")
+    Logger.warn("Could not join #{topic}: #{inspect payload}")
     {:ok, state}
   end
 
   def handle_channel_closed(topic, _payload, _transport, state) do
-    Logger.error("Channel #{topic} closed...")
+    Logger.warn("Channel #{topic} closed...")
     Process.send_after(self(), :join, 5000)
 
     {:ok, Map.put(state, :channel, nil)}

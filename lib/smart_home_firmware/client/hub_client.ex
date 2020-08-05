@@ -110,7 +110,7 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   def handle_info({:pair, pair_data}, transport, state) do
-    GenSocketClient.push(transport, state.channel, "pair:complete", pair_data)
+    {:ok, _ref} = GenSocketClient.push(transport, state.channel, "pair:complete", pair_data)
 
     {:ok, state}
   end

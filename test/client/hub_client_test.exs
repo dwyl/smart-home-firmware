@@ -1,8 +1,15 @@
 defmodule SmartHomeFirmwareTest.HubClientTest do
-  use ExUnit.Case # No async due to some race conditions
+  use ExUnit.Case, async: true
   require Logger
 
   alias SmartHomeFirmware.HubClient
+
+  @state %{
+    "mode" => "0",
+    "uuid" => "0",
+    "name" => "test",
+    "feature_flags" => []
+  }
 
   # Mock some stuff
   defmodule FakeEncoder do
@@ -15,7 +22,7 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
   defmodule FakeTransport do
     @behaviour Phoenix.Channels.GenSocketClient.Transport
     def start_link(_url, _opts), do: {:ok, self()}
-    def push(_pid, frame) do
+    def push(pid, frame) do
       send(self(), {:frame, frame})
       :ok
     end
@@ -62,7 +69,6 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       ]
 
       pid = start_supervised!({SmartHomeFirmware.HubClient, opts})
-
       # Mock the transport map
       transport = %{
         transport_mod: SmartHomeFirmwareTest.HubClientTest.FakeTransport,
@@ -70,7 +76,7 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
         serializer: SmartHomeFirmwareTest.HubClientTest.FakeEncoder
       }
 
-      %{client: pid, transport: transport}
+      %{client: pid, transport: transport, test: test}
     end
 
     # Test callbacks
@@ -86,12 +92,7 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       SmartHomeFirmware.State.subscribe(:self)
 
       {:ok, %{}} =
-        HubClient.handle_joined("lock:test", %{
-          "mode" => "0",
-          "uuid" => "0",
-          "name" => "test",
-          "feature_flags" => []
-        }, transport, %{})
+        HubClient.handle_joined("lock:test", @state, transport, %{})
 
       assert_receive {:store_update, :self, %{name: "test"}}
     end
@@ -103,6 +104,41 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       HubClient.handle_message("", "mode:pair", payload, transport, %{})
 
       assert_receive {:store_update, :pair_params, payload}
+    end
+
+    test "handle_message event pushes to display", %{transport: transport} do
+      SmartHomeFirmware.State.subscribe(:display)
+      payload = %{"message" => :test}
+
+      HubClient.handle_message("", "event", payload, transport, %{})
+
+      assert_receive {:store_update, :display, :test}
+    end
+
+    test ":connect sends a connect respone", %{transport: transport} do
+      assert {:connect, %{}} ==
+        HubClient.handle_info(:connect, transport, %{})
+    end
+
+    test "handle_reply {reset_reply} resets state", %{transport: transport} do
+      SmartHomeFirmware.State.subscribe(:self)
+      state =
+        @state
+        |> Map.put("name", "reset")
+
+      HubClient.handle_reply("", 1, %{"response" => state}, transport, %{reset_reply: 1})
+
+      assert_receive {:store_update, :self, payload}
+    end
+
+    test "handle_reply {verify_access} returns correct value", %{transport: transport} do
+      HubClient.handle_reply("", 1, %{"response" =>
+        %{"user" => :me, "access" => true}},
+        transport,
+        %{verify_access_reply: {1, self()}}
+      )
+
+      assert_receive(%{user: :me, access: true})
     end
   end
 end

@@ -1,14 +1,8 @@
 defmodule SmartHomeFirmwareTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest SmartHomeFirmware
 
   # Integration tests for application
-
-  test "default state initialized" do
-    state = SmartHomeFirmware.State.get(:lock)
-
-    assert state.uuid == "0"
-  end
 
   test "can put state" do
     SmartHomeFirmware.State.put(:test, :test_val)
@@ -20,14 +14,14 @@ defmodule SmartHomeFirmwareTest do
     SmartHomeFirmware.State.subscribe(:test)
     SmartHomeFirmware.State.put(:test, :test_val)
 
-    assert_receive {:store_update, :test, :test_val}, 10_000
+    assert_receive {:store_update, :test, :test_val}, 1000
   end
 
   test "can unsubscribe to state" do
     SmartHomeFirmware.State.unsubscribe(:test)
     SmartHomeFirmware.State.put(:test, :new_val)
 
-    refute_receive {:store_update, :test, :new_val}, 10_000
+    refute_receive {:store_update, :test, :new_val}, 1000
   end
 
   test "pair mode" do

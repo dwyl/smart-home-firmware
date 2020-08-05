@@ -1,5 +1,5 @@
 defmodule SmartHomeFirmwareTest.LockTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "lock" do
     setup %{test: test} do

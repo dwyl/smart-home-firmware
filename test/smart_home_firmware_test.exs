@@ -34,7 +34,7 @@ defmodule SmartHomeFirmwareTest do
       %{}
     )
 
-    assert_receive {:store_update, :lock, %{mode: 3}}
+    assert_receive {:store_update, :lock, %{mode: 3}}, 1000
 
 
   end

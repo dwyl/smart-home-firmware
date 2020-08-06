@@ -18,7 +18,11 @@ before_install:
   - mix local.rebar --force
   - mix archive.install --force hex nerves_bootstrap
   # Include our hub server at master
-  - ./install_hub.sh
+  - git clone https://github.com/dwyl/smart-home-auth-server
+  - cd smart-home-auth-server
+  - mix setup
+  - mix phx.server &
+  - cd ../
 script:
   - mix coveralls.json
 after_success:

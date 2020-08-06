@@ -21,12 +21,15 @@ before_install:
   - git clone https://github.com/dwyl/smart-home-auth-server
   - cd smart-home-auth-server
   - mix setup
-  - mix phx.server &
+  - |
+    mix phx.server&
+    SERVER_PID=$1
   - cd ../
 script:
   - mix coveralls.json
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+- kill $SERVER_PID
 env:
   global:
   - MIX_ENV=test

@@ -24,7 +24,7 @@ before_install:
   - mix setup
   - |
     mix phx.server&
-    SERVER_PID=$1
+    SERVER_PID=$!
   - cd ../
 script:
   - mix coveralls.json

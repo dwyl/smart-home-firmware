@@ -4,6 +4,8 @@ elixir:
 - 1.10.3
 otp_release:
 - 23.0.2
+services:
+  - postgresql
 cache:
   directories:
   - _build
@@ -15,6 +17,8 @@ before_install:
   - mix local.hex --force
   - mix local.rebar --force
   - mix archive.install --force hex nerves_bootstrap
+  # Include our hub server at master
+  - ./install_hub.sh
 script:
   - mix coveralls.json
 after_success:

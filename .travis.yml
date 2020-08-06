@@ -10,6 +10,7 @@ cache:
   directories:
   - _build
   - deps
+  - smart-home-auth-server/deps
 before_install:
   - sudo apt-get update
   # build utils required to compile github.com/boydm/scenic_driver_glfw

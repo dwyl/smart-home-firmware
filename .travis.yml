@@ -10,7 +10,7 @@ cache:
   directories:
   - _build
   - deps
-  - smart-home-auth-server/deps
+  - smart-home-auth-server-deps
 before_install:
   - sudo apt-get update
   # build utils required to compile github.com/boydm/scenic_driver_glfw
@@ -20,6 +20,8 @@ before_install:
   - mix archive.install --force hex nerves_bootstrap
   # Include our hub server at master
   - git clone https://github.com/dwyl/smart-home-auth-server
+  - mkdir smart-home-auth-server/deps
+  - cp -R smart-home-auth-server-deps/* smart-home-auth-server/deps
   - cd smart-home-auth-server
   - mix setup
   - |
@@ -31,6 +33,9 @@ script:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 - kill $SERVER_PID
+- rm -rf smart-home-auth-server-deps
+- mkdir smart-home-auth-server-deps
+- cp -R smart-home-auth-server/deps/* smart-home-auth-server-deps
 env:
   global:
   - MIX_ENV=test

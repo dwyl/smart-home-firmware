@@ -26,7 +26,7 @@ end
 
 
 config :smart_home_firmware,
-  hub: "192.168.0.14:4000"
+  hub: "localhost:4000"
 
 if Mix.target() == :host do
   import_config "host.exs"

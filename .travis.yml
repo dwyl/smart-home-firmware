@@ -32,6 +32,7 @@ script:
   - mix coveralls.json
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+- tail -f /proc/$SERVER_PID/fd/1
 - kill $SERVER_PID
 # - rm -rf smart-home-auth-server-deps
 # - mkdir smart-home-auth-server-deps

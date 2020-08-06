@@ -21,7 +21,7 @@ config :nerves, source_date_epoch: "1594028364"
 # See https://hexdocs.pm/ring_logger/readme.html for more information on
 # configuring ring_logger.
 if Mix.env() == :test do
-  config :logger, level: :error
+  config :logger, level: :info
 end
 
 

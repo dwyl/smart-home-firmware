@@ -15,16 +15,16 @@ defmodule SmartHomeFirmware.HubClient do
     pair: 3
   }
 
-  def send_pair(pair) do
-    send(__MODULE__, {:pair, pair})
+  def send_pair(pair, pid \\ __MODULE__) do
+    send(pid, {:pair, pair})
   end
 
-  def send_event(event) do
-    send(__MODULE__, {:event_out, event})
+  def send_event(event, pid \\ __MODULE__) do
+    send(pid, {:event_out, event})
   end
 
-  def verify_access(device_id, uuid) do
-    send(__MODULE__, {:verify_access, {device_id, uuid, self()}})
+  def verify_access(device_id, uuid, pid \\ __MODULE__) do
+    send(pid, {:verify_access, {device_id, uuid, self()}})
 
     # Hack on a syncronous response
     receive do
@@ -34,19 +34,21 @@ defmodule SmartHomeFirmware.HubClient do
 
   end
 
-  def reset_state() do
-    send(__MODULE__, :reset_state)
+  def reset_state(pid \\ __MODULE__) do
+    send(pid, :reset_state)
   end
 
   def start_link(opts) do
     Logger.info("Hub service starting....")
     name = Keyword.get(opts, :name, __MODULE__)
+    transport = Keyword.get(opts, :transport,  Phoenix.Channels.GenSocketClient.Transport.WebSocketClient)
+    socket_opts = Keyword.get(opts, :socket_opts, [])
 
     GenSocketClient.start_link(
       __MODULE__,
-      Phoenix.Channels.GenSocketClient.Transport.WebSocketClient,
+      transport,
       opts, # arbitary argument
-      [], # socket opts
+      socket_opts, # socket opts
       name: name # GenServer opts
     )
   end
@@ -76,7 +78,7 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   def handle_disconnected(reason, state) do
-    Logger.error("disconnected: #{inspect reason}")
+    Logger.warn("disconnected: #{inspect reason}")
     Process.send_after(self(), :connect, :timer.seconds(1))
 
     {:ok, state}
@@ -108,7 +110,7 @@ defmodule SmartHomeFirmware.HubClient do
   end
 
   def handle_info({:pair, pair_data}, transport, state) do
-    GenSocketClient.push(transport, state.channel, "pair:complete", pair_data)
+    {:ok, _ref} = GenSocketClient.push(transport, state.channel, "pair:complete", pair_data)
 
     {:ok, state}
   end
@@ -189,12 +191,12 @@ defmodule SmartHomeFirmware.HubClient do
 
   # Error handlers:
   def handle_join_error(topic, payload, _transport, state) do
-    Logger.error("Could not join #{topic}: #{inspect payload}")
+    Logger.warn("Could not join #{topic}: #{inspect payload}")
     {:ok, state}
   end
 
   def handle_channel_closed(topic, _payload, _transport, state) do
-    Logger.error("Channel #{topic} closed...")
+    Logger.warn("Channel #{topic} closed...")
     Process.send_after(self(), :join, 5000)
 
     {:ok, Map.put(state, :channel, nil)}
@@ -205,7 +207,7 @@ defmodule SmartHomeFirmware.HubClient do
     {:noreply, state}
   end
 
-  defp get_channel() do
+  def get_channel() do
     {:ok, hostname} = :inet.gethostname()
 
     "lock:" <> to_string(hostname)

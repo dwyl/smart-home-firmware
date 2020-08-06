@@ -22,4 +22,5 @@ after_success:
 env:
   global:
   - MIX_ENV=test
+  # GPIO testing, see: https://github.com/elixir-circuits/circuits_gpio#testing
   - CIRCUITS_MIX_ENV=test

@@ -62,13 +62,10 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
     setup %{test: test} do
       opts = [
         name: test,
-        transport: SmartHomeFirmwareTest.HubClientTest.FakeTransport,
-        socket_opts: [
-          serializer: SmartHomeFirmwareTest.HubClientTest.FakeEncoder
-        ]
       ]
 
       pid = start_supervised!({SmartHomeFirmware.HubClient, opts})
+
       # Mock the transport map
       transport = %{
         transport_mod: SmartHomeFirmwareTest.HubClientTest.FakeTransport,

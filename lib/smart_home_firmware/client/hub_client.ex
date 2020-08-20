@@ -215,7 +215,16 @@ defmodule SmartHomeFirmware.HubClient do
 
   defp get_socket_opts() do
     {:ok, hostname} = :inet.gethostname()
-    {"ws://#{@host}/socket/websocket", to_string(hostname)}
+    scheme = get_scheme()
+    {"#{scheme}://#{@host}/socket/websocket", to_string(hostname)}
+  end
+
+  defp get_scheme() do
+    if Application.fetch_env!(:smart_home_firmware, :ssl) do
+      "wss"
+    else
+      "ws"
+    end
   end
 
 end

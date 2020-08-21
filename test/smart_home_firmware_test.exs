@@ -12,16 +12,17 @@ defmodule SmartHomeFirmwareTest do
 
   test "can subscribe to state" do
     SmartHomeFirmware.State.subscribe(:test)
+    Process.sleep(500)
     SmartHomeFirmware.State.put(:test, :test_val)
 
-    assert_receive {:store_update, :test, :test_val}, 1000
+    assert_receive {:store_update, :test, :test_val}, 5000
   end
 
   test "can unsubscribe to state" do
     SmartHomeFirmware.State.unsubscribe(:test)
     SmartHomeFirmware.State.put(:test, :new_val)
 
-    refute_receive {:store_update, :test, :new_val}, 1000
+    refute_receive {:store_update, :test, :new_val}, 5000
   end
 
   test "pair mode" do
@@ -34,7 +35,7 @@ defmodule SmartHomeFirmwareTest do
       %{}
     )
 
-    assert_receive {:store_update, :lock, %{mode: 3}}, 1000
+    assert_receive {:store_update, :lock, %{mode: 3}}, 5000
 
 
   end

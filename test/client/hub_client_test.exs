@@ -159,6 +159,12 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       assert %{access: false} = result
     end
 
+    test "sending event works (integration)", %{client: client} do
+      assert {:event_out, %{}} = HubClient.send_event(%{event: "test"}, client)
+    end
 
+    test "handle_disconnect gracefully (integration)", %{client: client} do
+
+    end
   end
 end

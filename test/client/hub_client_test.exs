@@ -154,7 +154,11 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
         SmartHomeFirmware.State.get(:lock)
         |> Map.fetch(:uuid)
 
-      HubClient.verify_access("1234", uuid, client)
+      result = HubClient.verify_access("1234", uuid, client)
+
+      assert %{access: false} = result
     end
+
+
   end
 end

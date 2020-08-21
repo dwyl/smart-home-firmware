@@ -164,7 +164,8 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
     end
 
     test "handle_disconnect gracefully (integration)", %{client: client} do
-
+      # Check our disconnect handling does not error...
+      Phoenix.Channels.GenSocketClient.notify_disconnected(client, :test)
     end
   end
 end

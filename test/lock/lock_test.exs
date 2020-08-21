@@ -13,5 +13,21 @@ defmodule SmartHomeFirmwareTest.LockTest do
       state = GenServer.call(lock, :fetch_state)
       assert state.val == "test_val"
     end
+
+    test "unlock unlocks for 10 seconds", %{lock: lock} do
+      send(lock, :unlock)
+      state = GenServer.call(lock, :fetch_state)
+      assert 1 == Circuits.GPIO.read(state.relay_out)
+    end
+
+    test "end of timeout locks door", %{lock: lock} do
+      send(lock, :timeout)
+      state = GenServer.call(lock, :fetch_state)
+      assert 0 = Circuits.GPIO.read(state.relay_out)
+    end
+
+    test "NFC read works (integration)", %{lock: lock} do
+      assert :ok == SmartHomeFirmware.Lock.nfc_read("1234", lock)
+    end
   end
 end

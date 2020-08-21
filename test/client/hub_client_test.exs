@@ -167,5 +167,13 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       # Check our disconnect handling does not error...
       Phoenix.Channels.GenSocketClient.notify_disconnected(client, :test)
     end
+
+    test "reset_state successfully asks for new state (integration)", %{client: client} do
+      HubClient.reset_state(client)
+    end
+
+    test "joining a channel is successful", %{client: client} do
+      send(client, :join)
+    end
   end
 end

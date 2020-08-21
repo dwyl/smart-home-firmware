@@ -27,7 +27,21 @@ defmodule SmartHomeFirmwareTest.LockTest do
     end
 
     test "NFC read works (integration)", %{lock: lock} do
+      send(lock, {:store_update, :lock, %{mode: 1}})
       assert :ok == SmartHomeFirmware.Lock.nfc_read("1234", lock)
     end
+
+    test "NFC pair read works (integration)", %{lock: lock} do
+      send(lock, {:store_update, :lock, %{mode: 3}})
+      SmartHomeFirmware.State.put(:pair_params, %{test: :test})
+
+      assert :ok == SmartHomeFirmware.Lock.nfc_read("1234", lock)
+    end
+
+    test "handles unimplemented mode", %{lock: lock} do
+      send(lock, {:store_update, :lock, %{mode: -1}})
+      assert :ok == SmartHomeFirmware.Lock.nfc_read("1234", lock)
+    end
+
   end
 end

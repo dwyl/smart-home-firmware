@@ -45,8 +45,8 @@ defmodule SmartHomeFirmware.Lock do
     GenServer.cast(__MODULE__, {:setup, opts})
   end
 
-  def nfc_read(identifier) do
-    GenServer.cast(__MODULE__, {:nfc_read, identifier})
+  def nfc_read(identifier, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:nfc_read, identifier})
   end
 
   def handle_cast({:nfc_read, identifier}, %{mode: 3} = state) do

@@ -2,6 +2,8 @@
 {
   "skip_files": [
     "test/",
-    "rel/"
+    "rel/",
+    "lib/smart_home_firmware/display",
+    "lib/smart_home_firmware/nfc"
   ]
 }

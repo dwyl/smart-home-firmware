@@ -8,7 +8,8 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
     "mode" => "0",
     "uuid" => "0",
     "name" => "test",
-    "feature_flags" => []
+    "feature_flags" => [],
+
   }
 
   # Mock some stuff
@@ -62,13 +63,20 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
     setup %{test: test} do
       opts = [
         name: test,
-        transport: SmartHomeFirmwareTest.HubClientTest.FakeTransport,
-        socket_opts: [
-          serializer: SmartHomeFirmwareTest.HubClientTest.FakeEncoder
-        ]
+        connect_callback: self()
       ]
 
       pid = start_supervised!({SmartHomeFirmware.HubClient, opts})
+
+      receive do
+        :connected ->
+          :ok
+        after
+          2_000 ->
+            raise "Could not connect to hub"
+      end
+
+
       # Mock the transport map
       transport = %{
         transport_mod: SmartHomeFirmwareTest.HubClientTest.FakeTransport,
@@ -92,7 +100,7 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       SmartHomeFirmware.State.subscribe(:self)
 
       {:ok, %{}} =
-        HubClient.handle_joined("lock:test", @state, transport, %{})
+        HubClient.handle_joined("lock:test", @state, transport, %{connect_callback: :none})
 
       assert_receive {:store_update, :self, %{name: "test"}}
     end
@@ -139,6 +147,33 @@ defmodule SmartHomeFirmwareTest.HubClientTest do
       )
 
       assert_receive(%{user: :me, access: true})
+    end
+
+    test "test verify_access works (integration)", %{client: client} do
+      {:ok, uuid} =
+        SmartHomeFirmware.State.get(:lock)
+        |> Map.fetch(:uuid)
+
+      result = HubClient.verify_access("1234", uuid, client)
+
+      assert %{access: false} = result
+    end
+
+    test "sending event works (integration)", %{client: client} do
+      assert {:event_out, %{}} = HubClient.send_event(%{event: "test"}, client)
+    end
+
+    test "handle_disconnect gracefully (integration)", %{client: client} do
+      # Check our disconnect handling does not error...
+      Phoenix.Channels.GenSocketClient.notify_disconnected(client, :test)
+    end
+
+    test "reset_state successfully asks for new state (integration)", %{client: client} do
+      HubClient.reset_state(client)
+    end
+
+    test "joining a channel is successful", %{client: client} do
+      send(client, :join)
     end
   end
 end

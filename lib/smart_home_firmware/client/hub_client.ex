@@ -64,9 +64,12 @@ defmodule SmartHomeFirmware.HubClient do
     }
   end
 
-  def init(_opts) do
+  def init(opts) do
     {url, name} = get_socket_opts()
-    {:connect, url, [{"name", name}], %{first_join: true, ping_ref: 1}}
+    connect_callback = Keyword.get(opts, :connect_callback, :none)
+
+    {:connect, url, [{"name", name}],
+      %{first_join: true, ping_ref: 1, connect_callback: connect_callback}}
   end
 
   def handle_connected(transport, state) do
@@ -86,6 +89,7 @@ defmodule SmartHomeFirmware.HubClient do
 
   def handle_joined("lock:" <> _lock_serial, payload, _transport, state) do
     handle_handshake_resp(payload)
+    fire_connect_callback(state.connect_callback)
     {:ok, state}
   end
 
@@ -215,7 +219,25 @@ defmodule SmartHomeFirmware.HubClient do
 
   defp get_socket_opts() do
     {:ok, hostname} = :inet.gethostname()
-    {"ws://#{@host}/socket/websocket", to_string(hostname)}
+    scheme = get_scheme()
+    {"#{scheme}://#{@host}/socket/websocket", to_string(hostname)}
+  end
+
+  defp get_scheme() do
+    if Application.fetch_env!(:smart_home_firmware, :ssl) do
+      "wss"
+    else
+      "ws"
+    end
+  end
+
+  # Useful for testing and waiting for connections
+  defp fire_connect_callback(pid) when is_pid(pid) do
+    send(pid, :connected)
+  end
+
+  defp fire_connect_callback(:none) do
+    :ok
   end
 
 end

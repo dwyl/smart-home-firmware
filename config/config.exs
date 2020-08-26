@@ -26,7 +26,12 @@ end
 
 
 config :smart_home_firmware,
-  hub: "192.168.0.14:4000"
+  hub: "192.168.0.14:4000",
+  ssl: false
+
+if Mix.env() == :test do
+  import_config "test.exs"
+end
 
 if Mix.target() == :host do
   import_config "host.exs"
